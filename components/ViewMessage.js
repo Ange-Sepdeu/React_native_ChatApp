@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Badge } from "@rneui/themed";
 
 
-const ViewMessage = ({props}) => {
+const ViewMessage = ({name, lastMsg}) => {
   return (
     <>
     <Pressable>
@@ -13,10 +13,10 @@ const ViewMessage = ({props}) => {
     <MaterialCommunityIcons style={styles.icon} name='account-circle' size={60} />
     <View style={styles.messageContainer}>
         {/* <Text>{props.name}</Text> */}
-        <Text style={styles.name}>Ange Sepdeu</Text>
-        <Text style={styles.message}>Hey guy!</Text>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.message}>{lastMsg}</Text>
     </View>
-        <MaterialCommunityIcons style={{left:60, top: -105}} name='check' size={20} />
+        {/* <MaterialCommunityIcons style={{left:60, top: -105}} name='check' size={20} /> */}
     </View>
         {/* <Text style={styles.time}>{new Date().getHours()}:{new Date().getMinutes()}</Text> */}
         {/* <Badge value="3" status="success" 

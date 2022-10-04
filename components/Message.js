@@ -5,8 +5,11 @@ import {
   MenuProvider
 
 } from 'react-native-popup-menu'
+import ViewMessage from './ViewMessage';
 
 function Message({route,navigation}) {
+  const name = route.params.viewname;
+  const msg = route.params.lastMsg
   const [user, setUser] = useState([]);
   const handleSubmit = () => {
     navigation.navigate('Edit',{})
@@ -18,7 +21,8 @@ function Message({route,navigation}) {
     <>
       {}
             <View>
-            <TouchableOpacity onPress={handleSubmit}>
+            <ViewMessage name={name} lastMsg={msg} />
+            <TouchableOpacity onPress={handleSubmit}> 
             <MaterialCommunityIcons style={styles.profile} name="message-plus-outline" color='black' size={40} />
             </TouchableOpacity>
             </View>

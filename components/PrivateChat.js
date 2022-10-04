@@ -1,13 +1,44 @@
-import React from 'react'
-import {Text, TextInput, StatusBar, TouchableOpacity, View, StyleSheet} from "react-native";
+import React, { useEffect, useState } from 'react'
+import {Text, TextInput, StatusBar, TouchableOpacity, View, StyleSheet, FlatList} from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import MessageContainer from './MessageContainer';
+import io from 'socket.io-client'
 
 
-function PrivateChat() {
+function PrivateChat({navigation}) {
+    const socket = io('http://192.168.43.97:7000');
+    const [message, setMessage] = useState('');
+    const [chat, setChat] = useState([]);
+    var incoming, out;
+    useEffect(() => {
+        socket.on('chat-message', message => {
+        setChat([...chat, {message}]);
+       incoming=true
+       out = false
+    })
+    }, [chat]);
+    const handleSubmit = (text) => {
+        if(message !== ""){
+            // setChat(prev => {
+            //     return [
+            //         ...prev,
+            //         {text: text}
+            //     ]
+                
+            // })
+            incoming=false;
+            out = true;
+            socket.emit("send-message", message,"Ange Sepdeu");
+            setMessage("")
+        }
+    }
   return (
     <>
         <View style={styles.top}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={navigation.navigate("ChatScreen",{
+                viewname: 'Ange Sepdeu',
+                lastMsg: 'Hey You'
+            })}>
             <MaterialCommunityIcons name='arrow-left' size={30} />        
         </TouchableOpacity>
         <Text style={styles.toptext}>Ange Sepdeu</Text>
@@ -19,10 +50,17 @@ function PrivateChat() {
             <MaterialCommunityIcons style={{left:250, top: -70}} name='phone' size={30} />
             </TouchableOpacity>
         </View>
-            <View style={styles.input}>
-                <TextInput placeholderTextColor='#928F8F' placeholder='Enter your message...' />
+            <View>
+                <FlatList
+                  data={chat}
+                  renderItem={() => <MessageContainer  message={message} incoming={incoming} out={out} />}
+                  keyExtractor={(index)=>index.toString()}
+                />
             </View>
-                <TouchableOpacity>
+            <View style={styles.input}>
+                <TextInput value={message} onChangeText={(text)=> setMessage(text)} placeholderTextColor='#928F8F' placeholder='Enter your message...' />
+            </View>
+                <TouchableOpacity onPress={()=>handleSubmit(message)}>
                     <Text style={styles.submit}>Send</Text>
                 </TouchableOpacity>
         <StatusBar backgroundColor='#2790F1'/>

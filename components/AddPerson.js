@@ -3,17 +3,28 @@ import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvo
 import Container,{Toast} from 'toastify-react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 function AddPerson({route, navigation}) {
+    const socket = io('http://192.168.43.97:7000');
+    const [incoming, setIncoming] = useState([]);
+    useEffect(()=> {
+        socket.on('receive-request', req => {
+            setIncoming([...incoming, {req}]);
+        })
+    },[incoming]);
     const email = route.params.email;
-    const handleSubmit = () => {}
-    const handleDelete = (email) => {
-        
+    const name = route.params.name;
+    const handleSubmit = (e, sname, semail, rname) => {
+        e.preventDefault();
+        socket.emit('send-request', sname, semail, rname);
     }
+    const handleDelete = (email) => {}
+    const handleValidate = (email) =>  {}
     const [friend, setFriend] = useState([]);
     useEffect(()=>{
         getFriends()
-    },[]);
+    },[friend]);
     
     const getFriends = () => {
         axios.get(`http://192.168.43.97:7000/getFriends/${email}`)
@@ -43,7 +54,7 @@ function AddPerson({route, navigation}) {
             <MaterialCommunityIcons style={styles.icon} name='account-circle' size={80} />
          <Text style={styles.name}>{fr.username}</Text>
          <Text style={styles.email}>{fr.email}</Text>
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit(name, email, fr.name)}>
         <Text style={{fontSize: 20, color:'#2790F1', textAlign: 'center', lineHeight:25, top:7, fontWeight:'600'}} >
             Add</Text>
     </TouchableOpacity>
@@ -56,6 +67,25 @@ function AddPerson({route, navigation}) {
     )
         })}
         <Text style={{fontSize:20, textAlign: 'center'}}>Accept Requests</Text>
+        {incoming && incoming.map((item)=> {
+            return (
+                <View style={{padding: 10, height: 150}}>
+            <MaterialCommunityIcons style={styles.icon} name='account-circle' size={80} />
+         <Text style={styles.name}>{item.username}</Text>
+         <Text style={styles.email}>{item.email}</Text>
+        <TouchableOpacity style={styles.button} onPress={handleValidate}>
+        <Text style={{fontSize: 20, color:'#2790F1', textAlign: 'center', lineHeight:25, top:7, fontWeight:'600'}} >
+            Confirm</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.delete} onPress={handleDelete(item.email)}>
+        <Text style={{fontSize: 20, color:'#2790F1', textAlign: 'center', lineHeight:25, top:7, fontWeight:'600'}} >
+            Delete</Text>
+    </TouchableOpacity>
+    </View>     
+            )
+        })
+
+        }
         </ScrollView>
     </KeyboardAvoidingView>
     </>
@@ -65,7 +95,6 @@ function AddPerson({route, navigation}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: '#2790F1'
     },
     logo: {
         width: 104,

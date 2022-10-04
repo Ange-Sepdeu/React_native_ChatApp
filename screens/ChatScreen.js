@@ -31,7 +31,8 @@ function ChatScreen({route, navigation}) {
     const name = route.params.name;
     const handleSubmit = () => {
         navigation.navigate('AddPerson',{
-            email: route.params.email
+            email: route.params.email,
+            name: name,
         })
     }
     return (
