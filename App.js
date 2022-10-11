@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import ActivateAccount from './screens/ActivateAccount';
 import ChatScreen from './screens/ChatScreen';
+import AddContact from './screens/AddContact';
 import AddPerson from './components/AddPerson'
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -64,6 +65,13 @@ export default function App() {
         <Stack.Screen 
         name='AddPerson'
         component={AddPerson}
+        options={{
+          headerShown: false,
+        }}
+        />
+        <Stack.Screen 
+        name='AddContact'
+        component={AddContact}
         options={{
           headerShown: false,
         }}

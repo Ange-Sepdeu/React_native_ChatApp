@@ -6,42 +6,32 @@ import io from 'socket.io-client'
 
 
 function PrivateChat({navigation}) {
-    const socket = io('http://192.168.43.97:7000');
+    const socket = io('http://192.168.43.97:8000');
     const [message, setMessage] = useState('');
     const [chat, setChat] = useState([]);
     var incoming, out;
     useEffect(() => {
         socket.on('chat-message', message => {
         setChat([...chat, {message}]);
-       incoming=true
-       out = false
+        incoming=true
+        out = false
     })
     }, [chat]);
     const handleSubmit = (text) => {
-        if(message !== ""){
-            // setChat(prev => {
-            //     return [
-            //         ...prev,
-            //         {text: text}
-            //     ]
-                
-            // })
+        if(text !== ""){
             incoming=false;
             out = true;
-            socket.emit("send-message", message,"Ange Sepdeu");
+            socket.emit("send-message", text,"Audrey Ruphine");
             setMessage("")
         }
     }
   return (
     <>
         <View style={styles.top}>
-            <TouchableOpacity onPress={navigation.navigate("ChatScreen",{
-                viewname: 'Ange Sepdeu',
-                lastMsg: 'Hey You'
-            })}>
+            <TouchableOpacity>
             <MaterialCommunityIcons name='arrow-left' size={30} />        
         </TouchableOpacity>
-        <Text style={styles.toptext}>Ange Sepdeu</Text>
+        <Text style={styles.toptext}>Audrey Ruphine</Text>
         <Text style={styles.bottomtoptext}>Last Seen today 8:00</Text>    
             <TouchableOpacity>
             <MaterialCommunityIcons style={{left:300, top: -40}} name='video' size={30} />
@@ -51,11 +41,11 @@ function PrivateChat({navigation}) {
             </TouchableOpacity>
         </View>
             <View>
-                <FlatList
+                {/* <FlatList
                   data={chat}
                   renderItem={() => <MessageContainer  message={message} incoming={incoming} out={out} />}
                   keyExtractor={(index)=>index.toString()}
-                />
+                /> */}
             </View>
             <View style={styles.input}>
                 <TextInput value={message} onChangeText={(text)=> setMessage(text)} placeholderTextColor='#928F8F' placeholder='Enter your message...' />

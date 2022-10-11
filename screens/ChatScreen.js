@@ -27,10 +27,11 @@ function Settings() {
 
 const Tab = createMaterialTopTabNavigator();
 
-function ChatScreen({route, navigation}) {
+function ChatScreen({navigation, route}) {
     const name = route.params.name;
     const handleSubmit = () => {
-        navigation.navigate('AddPerson',{
+        navigation.navigate('AddPerson',
+        {
             email: route.params.email,
             name: name,
         })
@@ -42,7 +43,7 @@ function ChatScreen({route, navigation}) {
         <TouchableOpacity onPress={handleSubmit}>
         <MaterialCommunityIcons name="account-plus-outline" style={styles.add} color='black' size={30} />
         </TouchableOpacity>
-        <MaterialCommunityIcons name="account-search-outline" style={styles.search} color='black' size={30} />
+        {/* <MaterialCommunityIcons name="account-search-outline" style={styles.search} color='black' size={30} /> */}
     </View>
     <Tab.Navigator
     initialRouteName="Chats"
@@ -50,7 +51,12 @@ function ChatScreen({route, navigation}) {
       tabBarActiveTintColor: 'gray',
     }}
     >
-      <Tab.Screen name="Chats" component={Message}
+      <Tab.Screen name="Chats"
+    children={()=>{
+        return (
+            <Message name={name} navigation={navigation} route={route}/>
+        )
+    }}
         options={{
             tabBarBadge: ()=>{
             return <Text style={{ backgroundColor: '#2790F1', 
@@ -107,9 +113,8 @@ function ChatScreen({route, navigation}) {
 
 const styles = StyleSheet.create({
     add: {
-            top: 10,
-            left: '85%',
-            bottom: '5%'
+            top: -10,
+            left: '75%'
     },
     search: {
         left: '65%',
@@ -119,7 +124,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
         top: 25,
         marginTop: 30,
-        marginBottom: -20,
+        marginBottom: 2,
         color: '#2790F1',
         fontWeight: '700',
         left: 20

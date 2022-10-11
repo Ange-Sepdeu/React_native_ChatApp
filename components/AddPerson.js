@@ -1,30 +1,38 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Alert, ScrollView } from 'react-native'
 import Container,{Toast} from 'toastify-react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
-import { io } from 'socket.io-client';
+import io  from 'socket.io-client';
 
 function AddPerson({route, navigation}) {
-    const socket = io('http://192.168.43.97:7000');
-    const [incoming, setIncoming] = useState([]);
-    useEffect(()=> {
-        socket.on('receive-request', req => {
-            setIncoming([...incoming, {req}]);
-        })
-    },[incoming]);
-    const email = route.params.email;
-    const name = route.params.name;
-    const handleSubmit = (e, sname, semail, rname) => {
-        e.preventDefault();
-        socket.emit('send-request', sname, semail, rname);
-    }
-    const handleDelete = (email) => {}
-    const handleValidate = (email) =>  {}
+   const socket = io('http://192.168.43.97:8000');
+    socket.emit('new-user', route.params.name);
+    const [incoming, setIncoming] = useState([{username: '', email: ''}]);
     const [friend, setFriend] = useState([]);
     useEffect(()=>{
         getFriends()
     },[friend]);
+    useEffect(()=> {
+        socket.on('receive-request', req => {setIncoming([...incoming, {req}]);});
+        return () => {socket.disconnect();};
+    },[incoming]);
+    const email = route.params.email;
+    const name = route.params.name;
+    const submitRequest = (rname) => {
+        socket.emit('send-request', name, email, rname);
+        Toast.success("Sent request successfully!!");
+    }
+    const handleDelete = (email) => {}
+    const handleValidate = (name,email, sname) =>  {
+        axios.post(`http://192.168.43.97:7000/addContacts/${sname}`, name, email)
+        .then(res=>{
+            if(res.status===200) {
+                Toast.success("New contact added!!");
+            }
+        })
+        .catch(error=> console.log(error));
+    }
     
     const getFriends = () => {
         axios.get(`http://192.168.43.97:7000/getFriends/${email}`)
@@ -44,17 +52,18 @@ function AddPerson({route, navigation}) {
         <KeyboardAvoidingView 
     behavior='height'
     style={styles.container}>
+        <Container position='top' />
         <Image resizeMode='contain' style={styles.logo} source={require('../assets/logoAppBlue.png')}/>
         <Text style={{textAlign: 'center', fontSize:20, marginTop: 50}}>Submit Friend Requests</Text>
         <ScrollView>
         {friend && friend.map((fr,index)=>{
         return(
         <>
-            <View style={{padding: 10, height: 150}}>
+            <View key={index} style={{padding: 10, height: 150}}>
             <MaterialCommunityIcons style={styles.icon} name='account-circle' size={80} />
          <Text style={styles.name}>{fr.username}</Text>
          <Text style={styles.email}>{fr.email}</Text>
-        <TouchableOpacity style={styles.button} onPress={handleSubmit(name, email, fr.name)}>
+        <TouchableOpacity style={styles.button} onPress={()=>submitRequest(name, email, fr.username)}>
         <Text style={{fontSize: 20, color:'#2790F1', textAlign: 'center', lineHeight:25, top:7, fontWeight:'600'}} >
             Add</Text>
     </TouchableOpacity>
@@ -66,14 +75,15 @@ function AddPerson({route, navigation}) {
     </>
     )
         })}
-        <Text style={{fontSize:20, textAlign: 'center'}}>Accept Requests</Text>
-        {incoming && incoming.map((item)=> {
+        <Text style={{fontSize:20, marginTop:5, textAlign: 'center'}}>Accept Requests</Text>
+        {
+        incoming && incoming.map((item, index)=> {
             return (
-                <View style={{padding: 10, height: 150}}>
+                <View key={index} style={{padding: 10, height: 150}}>
             <MaterialCommunityIcons style={styles.icon} name='account-circle' size={80} />
          <Text style={styles.name}>{item.username}</Text>
          <Text style={styles.email}>{item.email}</Text>
-        <TouchableOpacity style={styles.button} onPress={handleValidate}>
+        <TouchableOpacity style={styles.button} onPress={()=>handleValidate(item.username, item.email, name)} >
         <Text style={{fontSize: 20, color:'#2790F1', textAlign: 'center', lineHeight:25, top:7, fontWeight:'600'}} >
             Confirm</Text>
     </TouchableOpacity>

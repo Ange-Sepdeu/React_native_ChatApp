@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, Badge, TouchableOpacity, View, FlatList } from 'react-native';
-import {
-  MenuProvider
-
-} from 'react-native-popup-menu'
 import ViewMessage from './ViewMessage';
 
-function Message({route,navigation}) {
-  const name = route.params.viewname;
-  const msg = route.params.lastMsg
+function Message({navigation, route}) {
   const [user, setUser] = useState([]);
+ const name=route.params.name;
   const handleSubmit = () => {
-    navigation.navigate('Edit',{})
+    navigation.navigate('AddContact',{
+      name: name
+    })
   }
   // useEffect(()=> {
 
@@ -21,7 +18,7 @@ function Message({route,navigation}) {
     <>
       {}
             <View>
-            <ViewMessage name={name} lastMsg={msg} />
+            {/* <ViewMessage name='Ange Sepdeu' lastMsg='Hey'/> */}
             <TouchableOpacity onPress={handleSubmit}> 
             <MaterialCommunityIcons style={styles.profile} name="message-plus-outline" color='black' size={40} />
             </TouchableOpacity>
